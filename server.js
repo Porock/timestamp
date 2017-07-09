@@ -8,6 +8,7 @@
 var fs = require('fs');
 var express = require('express');
 var app = express();
+var names = require('date-names');
 
 if (!process.env.DISABLE_XORIGIN) {
   app.use(function(req, res, next) {
@@ -21,6 +22,19 @@ if (!process.env.DISABLE_XORIGIN) {
     next();
   });
 }
+
+app.get('/:time', function(req, res){
+  if(req.params.time.includes(' ')){
+    var date=new Date(req.params.time);
+  }else{
+    var date=new Date(req.params.time*1000);
+  }
+  console.log(date);
+  res.send({
+    unix: date.getTime()/1000,
+    natural: names.months[date.getMonth()]+" "+date.getDate()+", "+date.getFullYear()
+  });
+})
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
@@ -52,6 +66,8 @@ app.use(function(err, req, res, next) {
       .send(err.message || 'SERVER ERROR');
   }  
 })
+
+
 
 app.listen(process.env.PORT, function () {
   console.log('Node.js listening ...');
